@@ -67,7 +67,10 @@ def check_mail(mail):
 
     driver.get(urljoin('https://haveibeenpwned.com/unifiedsearch/', mail))
     time.sleep(random.random() * 120)
-    driver.find_element_by_id('rawdata-tab').click()
-    data = json.loads(driver.find_elements_by_class_name('data')[0].text)
+    try:
+        driver.find_element_by_id('rawdata-tab').click()
+        data = json.loads(driver.find_elements_by_class_name('data')[0].text)
+    except:
+        data = list()
     driver.close()
     return len(data)
