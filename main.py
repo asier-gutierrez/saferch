@@ -14,7 +14,7 @@ if __name__ == '__main__':
                         help="Step from which start computations. 0 From start, 1 from domain2graph, and 2 from graph2flaws.",
                         default=0)
     parser.add_argument("--community-analysis", action='store_true')
-    parser.add_argument("--spread-simulation-step", type=int, help="Steps for the virus spread simulation.",
+    parser.add_argument("--spread-simulation-steps", type=int, help="Steps for the virus spread simulation.",
                         default=10)
     parser.add_argument("--threshold", type=int, help="Threshold to be used in order to select Exposed nodes.",
                         default=2)
