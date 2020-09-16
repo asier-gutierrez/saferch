@@ -31,17 +31,18 @@ def load(path):
 def analysis(G, output):
     data = dict()
     data['clustering'] = nx.clustering(G, weight='weight')
-    data['degree_assortativity'] = nx.degree_assortativity_coefficient(G, weight='weight')
-    data['shortest_path_average'] = nx.average_shortest_path_length(G, weight='weight')
+    #data['degree_assortativity'] = nx.degree_assortativity_coefficient(G, weight='weight')
+    if nx.is_connected(G):
+        data['shortest_path_average'] = nx.average_shortest_path_length(G, weight='weight')
     data['pagerank'] = nx.pagerank(G, weight='weight')
 
-    with open(os.path.join(output, "analysis.json")) as out:
+    with open(os.path.join(output, "analysis.json"), 'w') as out:
         json.dump(data, out)
 
-    fig = plt.figure(figsize=(20, 20))
     T = nx.maximum_spanning_tree(G, weight='weight')
+    fig = plt.figure(figsize=(20, 20))
     nx.draw_kamada_kawai(T)
-    plt.savefig(os.path.join(output, "output.png"))
+    plt.savefig(os.path.join(output, "mst.png"))
 
 
 def community_analysis(G, output):
