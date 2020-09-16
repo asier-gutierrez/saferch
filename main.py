@@ -51,4 +51,4 @@ if __name__ == '__main__':
         graph_community_analysis(G, OUT_PATH)
 
     # Virus spread simulation
-    graph_simulate_spread(G, args.spread_simulation_steps, args.threshold)
+    graph_simulate_spread(G, args.spread_simulation_steps, args.threshold, OUT_PATH)

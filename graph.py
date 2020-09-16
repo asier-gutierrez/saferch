@@ -6,6 +6,7 @@ import ndlib.models.epidemics as ep
 from bokeh.io import show
 from ndlib.viz.bokeh.DiffusionTrend import DiffusionTrend
 from ndlib.viz.bokeh.DiffusionPrevalence import DiffusionPrevalence
+from bokeh.io import export_png
 import matplotlib.pyplot as plt
 
 
@@ -51,7 +52,7 @@ def community_analysis(G, output):
     # TODO draw community analysis
 
 
-def simulate_spread(G, steps, threshold):
+def simulate_spread(G, steps, threshold, output):
     exposed_nodes = [node for node in G.nodes(data=True) if node[1]['flaws'] > threshold]
     model = ep.SEIRModel(G)
 
@@ -68,8 +69,8 @@ def simulate_spread(G, steps, threshold):
 
     dt = DiffusionTrend(model, trends)
     p = dt.plot(width=400, height=400)
-    show(p)
+    export_png(p, filename=os.path.join(output, 'diffusion_trend.png'))
 
     dp = DiffusionPrevalence(model, trends)
     p2 = dp.plot(width=400, height=400)
-    show(p2)
+    export_png(p2, filename=os.path.join(output, 'diffusion_prevalence.png'))
