@@ -25,7 +25,7 @@ def save(G, path):
 
 
 def load(path):
-    return nx.read_pajek(path)
+    return nx.Graph(nx.read_pajek(path))
 
 
 def analysis(G, output):
