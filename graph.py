@@ -21,11 +21,11 @@ def relations_graph_attach(G, relations):
 
 
 def save(G, path):
-    nx.write_pajek(G, path)
+    nx.write_gml(G, path)
 
 
 def load(path):
-    return nx.Graph(nx.read_pajek(path))
+    return nx.read_gml(path)
 
 
 def analysis(G, output):
