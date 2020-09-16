@@ -32,7 +32,7 @@ def relation_parse(data, domain):
                                                                                      '@')]))))
 
         relations.append(relation)
-    return relations
+    return [relation for relation in relations if type(relation) == list]
 
 
 def scrap_relations(domain, depth):
