@@ -1,6 +1,6 @@
 import os
 import argparse
-from controller import domain2graph, graph2flaws, graph_analysis, graph_community_analysis, graph_simulate_spread, \
+from controller import domain2graph, graph2flaws, graph_connected, graph_analysis, graph_draw, graph_community_analysis, graph_simulate_spread, \
     graph_save, graph_load
 
 if __name__ == '__main__':
@@ -13,6 +13,7 @@ if __name__ == '__main__':
     parser.add_argument("--from-compute-step", type=int,
                         help="Step from which start computations. 0 From start, 1 from domain2graph, and 2 from graph2flaws.",
                         default=0)
+    parser.add_argument("--draw-graph", action='store_true')
     parser.add_argument("--community-analysis", action='store_true')
     parser.add_argument("--spread-simulation-steps", type=int, help="Steps for the virus spread simulation.",
                         default=10)
@@ -43,8 +44,15 @@ if __name__ == '__main__':
 
     graph_save(G, GRAPH_PATH)
 
+    # Get connected graph
+    G = graph_connected(G, strategy="connect")
+
     # Graph description
     graph_analysis(G, OUT_PATH)
+
+    # Draw graph
+    if args.draw_graph:
+        graph_draw(G, OUT_PATH)
 
     # Community detection
     if args.community_analysis:

@@ -1,7 +1,7 @@
 import os, json
 import networkx as nx
 from connection import scrap_relations, check_mail
-from graph import relations_graph_attach, analysis, community_analysis, simulate_spread, save, load
+from graph import relations_graph_attach, analysis, community_analysis, simulate_spread, save, load, draw, connected
 
 
 def domain2graph(domain, depth):
@@ -30,13 +30,22 @@ def graph_load(path):
         print("Graph not found.")
 
 
+def graph_connected(G, strategy):
+    G = connected(G, strategy)
+    return G
+
+
 def graph_analysis(G, output):
     analysis(G, output)
+
+
+def graph_draw(G, output):
+    draw(G, output)
 
 
 def graph_community_analysis(G, output):
     community_analysis(G, output)
 
 
-def graph_simulate_spread(G, steps, threshold):
-    simulate_spread(G, steps, threshold)
+def graph_simulate_spread(G, steps, threshold, output):
+    simulate_spread(G, steps, threshold, output)
