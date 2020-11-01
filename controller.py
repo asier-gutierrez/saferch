@@ -1,7 +1,8 @@
 import os, json
 import networkx as nx
 from connection import scrap_relations, check_mail
-from graph import relations_graph_attach, analysis, community_analysis, simulate_spread, save, load, draw, connected
+from graph import relations_graph_attach, analysis, community_analysis, simulate_spread, save, load, draw, connected, \
+    draw_infected
 
 
 def domain2graph(domain, depth):
@@ -48,4 +49,8 @@ def graph_community_analysis(G, output):
 
 
 def graph_simulate_spread(G, steps, threshold, output):
-    simulate_spread(G, steps, threshold, output)
+    return simulate_spread(G, steps, threshold, output)
+
+
+def graph_draw_infected(G, infected_nodes, output):
+    draw_infected(G, infected_nodes, output)

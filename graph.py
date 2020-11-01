@@ -81,8 +81,8 @@ def community_analysis(G, output):
     # TODO draw community analysis
 
 
-def simulate_spread(G, steps, threshold, output, ):
-    exposed_nodes = [node for node in G.nodes(data=True) if node[1]['flaws'] > threshold]
+def simulate_spread(G, steps, threshold, output):
+    exposed_nodes = [node_idx for node_idx, node in enumerate(G.nodes(data=True)) if node[1]['flaws'] > threshold]
     model = ep.SEIRModel(G)
 
     cfg = mc.Configuration()
@@ -105,3 +105,18 @@ def simulate_spread(G, steps, threshold, output, ):
     p2 = dp.plot(width=800, height=800)
     export_png(p2, filename=os.path.join(output, 'diffusion_prevalence.png'),
                webdriver=webdriver.Firefox(executable_path=os.environ['GECKO_DRIVER']))
+
+    infected_nodes = set()
+    for iteration in iterations:
+        for k, v in iteration['status'].items():
+            if v == 3:
+                infected_nodes.add(k)
+
+    return list(infected_nodes)
+
+
+def draw_infected(G, infected_nodes, output):
+    node_colors = ['blue' if node not in infected_nodes else 'red' for node in G.nodes()]
+    fig = plt.figure(figsize=(20, 20))
+    nx.draw_kamada_kawai(G, node_color=node_colors)
+    plt.savefig(os.path.join(output, 'infected_draw.png'))

@@ -1,7 +1,7 @@
 import os
 import argparse
-from controller import domain2graph, graph2flaws, graph_connected, graph_analysis, graph_draw, graph_community_analysis, graph_simulate_spread, \
-    graph_save, graph_load
+from controller import domain2graph, graph2flaws, graph_connected, graph_analysis, graph_draw, graph_community_analysis, \
+    graph_simulate_spread, graph_save, graph_load, graph_draw_infected
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -16,9 +16,9 @@ if __name__ == '__main__':
     parser.add_argument("--draw-graph", action='store_true')
     parser.add_argument("--community-analysis", action='store_true')
     parser.add_argument("--spread-simulation-steps", type=int, help="Steps for the virus spread simulation.",
-                        default=10)
+                        default=250)
     parser.add_argument("--threshold", type=int, help="Threshold to be used in order to select Exposed nodes.",
-                        default=2)
+                        default=1)
     args = parser.parse_args()
 
     OUT_PATH = os.path.join('out', args.domain)
@@ -59,4 +59,5 @@ if __name__ == '__main__':
         graph_community_analysis(G, OUT_PATH)
 
     # Virus spread simulation
-    graph_simulate_spread(G, args.spread_simulation_steps, args.threshold, OUT_PATH)
+    infected_nodes = graph_simulate_spread(G, args.spread_simulation_steps, args.threshold, OUT_PATH)
+    graph_draw_infected(G, infected_nodes, OUT_PATH)
