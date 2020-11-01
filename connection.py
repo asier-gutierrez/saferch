@@ -4,7 +4,6 @@ import time
 import json
 import random
 from urllib.parse import urljoin
-import requests
 from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 
@@ -51,8 +50,13 @@ def scrap_relations(domain, depth):
         try:
             driver.find_element_by_class_name('gs_ico_nav_next').click()
         except:
-            print('depth stopped', i)
-            break
+            print("Solve captcha and press enter.")
+            _ = input()
+            try:
+                driver.find_element_by_class_name('gs_ico_nav_next').click()
+            except:
+                print('depth stopped', i)
+                break
     driver.close()
     return relations
 
