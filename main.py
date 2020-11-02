@@ -1,7 +1,7 @@
 import os
 import argparse
 from controller import domain2graph, graph2flaws, graph_connected, graph_analysis, graph_draw, graph_community_analysis, \
-    graph_simulate_spread, graph_save, graph_load, graph_draw_infected
+    graph_simulate_spread, graph_save, graph_load, graph_draw_infected, graph_flaw_bar_plot
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -49,6 +49,9 @@ if __name__ == '__main__':
 
     # Graph description
     graph_analysis(G, OUT_PATH)
+
+    # Plot flaw distribution
+    graph_flaw_bar_plot(G, OUT_PATH)
 
     # Draw graph
     if args.draw_graph:
