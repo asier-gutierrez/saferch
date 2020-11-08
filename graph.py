@@ -1,18 +1,19 @@
-import os, json
+import os
+import json
 import networkx as nx
 import itertools
 import ndlib.models.ModelConfig as mc
 import ndlib.models.epidemics as ep
-from bokeh.io import show
 from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
 from ndlib.viz.mpl.DiffusionPrevalence import DiffusionPrevalence
-# from bokeh.io import export_png
+from ndlib.utils import multi_runs
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from selenium import webdriver
 import numpy as np
+from collections import Counter
 
 CMAP = cm.Set3
+CMAP_HEAT = cm.jet_r
 
 
 def relations_graph_attach(G, relations):
@@ -134,8 +135,8 @@ def simulate_spread(G, steps, threshold, infected_probability, simulation_beta, 
     # Set the configuration
     model.set_initial_status(cfg)
 
-    iterations = model.iteration_bunch(steps)
-    trends = model.build_trends(iterations)
+    # Run multiple models
+    trends = multi_runs(model, execution_number=10, iteration_number=steps, infection_sets=None, nprocesses=5)
 
     dt = DiffusionTrend(model, trends)
     dt.plot(filename=os.path.join(output, 'diffusion_trend.png'))
@@ -143,17 +144,24 @@ def simulate_spread(G, steps, threshold, infected_probability, simulation_beta, 
     dp = DiffusionPrevalence(model, trends)
     dp.plot(filename=os.path.join(output, 'diffusion_prevalence.png'))
 
-    infected_nodes = set()
-    for iteration in iterations:
-        for k, v in iteration['status'].items():
-            if v == 3:
-                infected_nodes.add(k)
+    # Other run to show
+    infected_nodes = list()
+    for _ in range(10):
+        model.reset()
+        iterations = model.iteration_bunch(steps)
+        for iteration in iterations:
+            for k, v in iteration['status'].items():
+                if v == 3:
+                    infected_nodes.append(k)
 
-    return list(infected_nodes)
+    return Counter(infected_nodes)
 
 
 def draw_infected(G, infected_nodes, output):
-    node_colors = ['#8ebad9' if node not in infected_nodes else '#eda1a2' for node in G.nodes()]
+    max_score = max(infected_nodes.values())
+    infected_nodes = {k: v / max_score for k, v in infected_nodes.items()}
+    node_colors = [CMAP_HEAT(infected_nodes.get(node, 0)) for node in G.nodes()]
     fig = plt.figure(figsize=(20, 20))
     nx.draw_kamada_kawai(G, node_color=node_colors)
+    plt.colorbar(cm.ScalarMappable(norm=None, cmap=CMAP_HEAT), cax=fig.add_axes([0.93, 0.60, 0.04, 0.38]))
     plt.savefig(os.path.join(output, 'infected_draw.png'))
