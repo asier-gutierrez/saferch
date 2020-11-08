@@ -15,5 +15,5 @@ def flaw_bar_plot(G, output):
     plt.title("Flaws distribution")
     plt.xlabel("Flaws")
     plt.ylabel("Number of nodes")
-    plt.bar(range(len(xs)), xs, tick_label=labels)
+    plt.bar(range(len(xs)), xs, tick_label=labels, color='#8ebad9')
     plt.savefig(os.path.join(output, 'flaws_barplot.png'))

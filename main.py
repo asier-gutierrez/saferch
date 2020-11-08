@@ -15,9 +15,14 @@ if __name__ == '__main__':
                         default=0)
     parser.add_argument("--draw-graph", action='store_true')
     parser.add_argument("--community-analysis", action='store_true')
-    parser.add_argument("--spread-simulation-steps", type=int, help="Steps for the virus spread simulation.",
-                        default=250)
-    parser.add_argument("--threshold", type=int, help="Threshold to be used in order to select Exposed nodes.",
+    parser.add_argument("--simulation-steps", type=int, help="Steps for the virus spread simulation.",
+                        default=200)
+    parser.add_argument("--simulation-infected-probability", type=float,
+                        help="Percentage of nodes to take from exposed to infected.", default=0.4)
+    parser.add_argument("--simulation-beta", type=float, help="Simulation beta parameter.", default=0.2)
+    parser.add_argument("--simulation-gamma", type=float, help="Simulation gamma parameter.", default=0.05)
+    parser.add_argument("--simulation-alpha", type=float, help="Simulation alpha parameter.", default=0.3)
+    parser.add_argument("--flaws_threshold", type=int, help="Threshold to be used in order to select Exposed nodes.",
                         default=1)
     args = parser.parse_args()
 
@@ -62,5 +67,7 @@ if __name__ == '__main__':
         graph_community_analysis(G, OUT_PATH)
 
     # Virus spread simulation
-    infected_nodes = graph_simulate_spread(G, args.spread_simulation_steps, args.threshold, OUT_PATH)
+    infected_nodes = graph_simulate_spread(G, args.simulation_steps, args.flaws_threshold,
+                                           args.simulation_infected_probability, args.simulation_beta,
+                                           args.simulation_gamma, args.simulation_alpha, OUT_PATH)
     graph_draw_infected(G, infected_nodes, OUT_PATH)

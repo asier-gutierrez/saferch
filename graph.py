@@ -4,12 +4,15 @@ import itertools
 import ndlib.models.ModelConfig as mc
 import ndlib.models.epidemics as ep
 from bokeh.io import show
-from ndlib.viz.bokeh.DiffusionTrend import DiffusionTrend
-from ndlib.viz.bokeh.DiffusionPrevalence import DiffusionPrevalence
-from bokeh.io import export_png
+from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
+from ndlib.viz.mpl.DiffusionPrevalence import DiffusionPrevalence
+# from bokeh.io import export_png
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from selenium import webdriver
 import numpy as np
+
+CMAP = cm.Set3
 
 
 def relations_graph_attach(G, relations):
@@ -54,57 +57,91 @@ def connected(G, strategy):
 
 def analysis(G, output):
     data = dict()
-    data['clustering'] = nx.clustering(G, weight='weight')
-    # data['degree_assortativity'] = nx.degree_assortativity_coefficient(G, weight='weight')
-    if nx.is_connected(G):
-        data['shortest_path_average'] = nx.average_shortest_path_length(G, weight='weight')
-    data['pagerank'] = nx.pagerank(G, weight='weight')
+    # data['clustering'] = nx.clustering(G, weight='weight')
+    # data['pagerank'] = nx.pagerank(G, weight='weight')
+    data['average_clustering'] = nx.average_clustering(G, weight='weight')
+    data['shortest_path_average'] = nx.average_shortest_path_length(G, weight='weight')
+    data['degree_assortativity'] = nx.degree_assortativity_coefficient(G, weight='weight')
 
     with open(os.path.join(output, "analysis.json"), 'w') as out:
         json.dump(data, out)
 
     T = nx.maximum_spanning_tree(G, weight='weight')
     fig = plt.figure(figsize=(20, 20))
-    nx.draw_kamada_kawai(T)
+    nx.draw_kamada_kawai(T, node_color='#8ebad9')
     plt.savefig(os.path.join(output, "mst.png"))
 
 
 def draw(G, output):
     fig = plt.figure(figsize=(20, 20))
-    nx.draw_kamada_kawai(G)
+    nx.draw_kamada_kawai(G, node_color='#8ebad9')
     plt.savefig(os.path.join(output, 'draw.png'))
 
 
 def community_analysis(G, output):
-    nx.algorithms.community.centrality.girvan_newman(G)
-    nx.algorithms.community.greedy_modularity_communities(G, weight='weight')
-    # TODO draw community analysis
+    gn_communities = next(nx.algorithms.community.centrality.girvan_newman(G))
+
+    nodes = np.array(G.nodes())
+    colors = list(np.zeros(len(nodes)))
+
+    for community_id, communities in enumerate(gn_communities):
+        for idx in np.where(np.isin(nodes, list(communities)))[0]:
+            colors[idx] = CMAP(community_id)
+
+    fig = plt.figure(figsize=(20, 20))
+    nx.draw_kamada_kawai(G, node_color=colors)
+    plt.savefig(os.path.join(output, 'gn_community.png'))
 
 
-def simulate_spread(G, steps, threshold, output):
-    exposed_nodes = [node_idx for node_idx, node in enumerate(G.nodes(data=True)) if node[1]['flaws'] > threshold]
+def simulate_spread(G, steps, threshold, infected_probability, simulation_beta, simulation_gamma, simulation_alpha,
+                    output):
+    infected_nodes = []
+    exposed_nodes = [node[0] for node in G.nodes(data=True) if node[1]['flaws'] > threshold]
+
+    # Take 1 at random and the rest with probability
+    idx = np.random.choice(list(range(len(exposed_nodes))), size=1, replace=False)[0]
+    infected_nodes.append(exposed_nodes.pop(idx))
+
+    infected_nodes_count = int(len(exposed_nodes) * infected_probability)
+    if infected_nodes_count != 0:
+        infected_idxs = np.random.choice(list(range(len(exposed_nodes))), infected_nodes_count)
+        infected_nodes.extend(list(np.take(exposed_nodes, infected_idxs)))
+        exposed_nodes = list(np.delete(exposed_nodes, infected_idxs))
+
+    susceptible_nodes = [node for node_idx, node in enumerate(G.nodes()) if
+                         node_idx not in [*exposed_nodes, *infected_nodes]]
+
+    # Create model
     model = ep.SEIRModel(G)
 
+    # Create configuration
     cfg = mc.Configuration()
-    cfg.add_model_parameter('beta', 0.01)
-    cfg.add_model_parameter('gamma', 0.005)
-    cfg.add_model_parameter('alpha', 0.05)
-    cfg.add_model_parameter("fraction_infected", 0.05)
+
+    # Infection probability.
+    cfg.add_model_parameter('beta', simulation_beta)
+    # Infected -> Remove probability
+    cfg.add_model_parameter('gamma', simulation_gamma)
+    # Latent period
+    cfg.add_model_parameter('alpha', simulation_alpha)
+
+    # Set both infected and exposed nodes.
+
+    # cfg.add_model_parameter('fraction_infected', 0.01)
+    cfg.add_model_initial_configuration("Susceptible", susceptible_nodes)
     cfg.add_model_initial_configuration("Exposed", exposed_nodes)
+    cfg.add_model_initial_configuration("Infected", infected_nodes)
+
+    # Set the configuration
     model.set_initial_status(cfg)
 
     iterations = model.iteration_bunch(steps)
     trends = model.build_trends(iterations)
 
     dt = DiffusionTrend(model, trends)
-    p = dt.plot(width=800, height=800)
-    export_png(p, filename=os.path.join(output, 'diffusion_trend.png'),
-               webdriver=webdriver.Firefox(executable_path=os.environ['GECKO_DRIVER']))
+    dt.plot(filename=os.path.join(output, 'diffusion_trend.png'))
 
     dp = DiffusionPrevalence(model, trends)
-    p2 = dp.plot(width=800, height=800)
-    export_png(p2, filename=os.path.join(output, 'diffusion_prevalence.png'),
-               webdriver=webdriver.Firefox(executable_path=os.environ['GECKO_DRIVER']))
+    dp.plot(filename=os.path.join(output, 'diffusion_prevalence.png'))
 
     infected_nodes = set()
     for iteration in iterations:
@@ -116,7 +153,7 @@ def simulate_spread(G, steps, threshold, output):
 
 
 def draw_infected(G, infected_nodes, output):
-    node_colors = ['blue' if node not in infected_nodes else 'red' for node in G.nodes()]
+    node_colors = ['#8ebad9' if node not in infected_nodes else '#eda1a2' for node in G.nodes()]
     fig = plt.figure(figsize=(20, 20))
     nx.draw_kamada_kawai(G, node_color=node_colors)
     plt.savefig(os.path.join(output, 'infected_draw.png'))

@@ -49,8 +49,10 @@ def graph_community_analysis(G, output):
     community_analysis(G, output)
 
 
-def graph_simulate_spread(G, steps, threshold, output):
-    return simulate_spread(G, steps, threshold, output)
+def graph_simulate_spread(G, steps, threshold, infected_probability, simulation_beta, simulation_gamma,
+                          simulation_alpha, output):
+    return simulate_spread(G, steps, threshold, infected_probability, simulation_beta, simulation_gamma,
+                           simulation_alpha, output)
 
 
 def graph_draw_infected(G, infected_nodes, output):
