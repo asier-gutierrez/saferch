@@ -68,13 +68,14 @@ def check_mail(mail):
         driver = webdriver.Firefox(proxy=proxy)
 
     driver.set_window_size(1920, 1080)
-
-    driver.get(urljoin('https://haveibeenpwned.com/unifiedsearch/', mail))
-    time.sleep(random.random() * 120)
+    flaws = 0
     try:
+        driver.get(urljoin('https://haveibeenpwned.com/unifiedsearch/', mail))
+        time.sleep(random.random() * 120)
+
         driver.find_element_by_id('rawdata-tab').click()
-        data = json.loads(driver.find_elements_by_class_name('data')[0].text)
+        flaws = len(json.loads(driver.find_elements_by_class_name('data')[0].text)['Breaches'])
     except:
-        data = list()
+        pass
     driver.close()
-    return len(data)
+    return flaws
