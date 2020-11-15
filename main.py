@@ -55,8 +55,6 @@ if __name__ == '__main__':
     # Graph description
     graph_analysis(G, OUT_PATH)
 
-    exit(0)
-
     # Plot flaw distribution
     graph_flaw_bar_plot(G, OUT_PATH)
 
