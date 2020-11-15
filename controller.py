@@ -3,7 +3,7 @@ import networkx as nx
 from connection import scrap_relations, check_mail
 from graph import relations_graph_attach, analysis, community_analysis, simulate_spread, save, load, draw, connected, \
     draw_infected
-from ploting import flaw_bar_plot
+from plotting import flaw_bar_plot
 
 
 def domain2graph(domain, depth):

@@ -12,8 +12,8 @@ from matplotlib import cm
 import numpy as np
 from collections import Counter
 
-CMAP = cm.Set3
-CMAP_HEAT = cm.jet_r
+CMAP = cm.tab10
+CMAP_HEAT = cm.jet
 
 
 def relations_graph_attach(G, relations):
@@ -60,6 +60,8 @@ def analysis(G, output):
     data = dict()
     # data['clustering'] = nx.clustering(G, weight='weight')
     # data['pagerank'] = nx.pagerank(G, weight='weight')
+    data['n_nodes'] = nx.number_of_nodes(G)
+    data['n_edges'] = nx.number_of_edges(G)
     data['average_clustering'] = nx.average_clustering(G, weight='weight')
     data['shortest_path_average'] = nx.average_shortest_path_length(G, weight='weight')
     data['degree_assortativity'] = nx.degree_assortativity_coefficient(G, weight='weight')
@@ -80,7 +82,7 @@ def draw(G, output):
 
 
 def community_analysis(G, output):
-    gn_communities = next(nx.algorithms.community.centrality.girvan_newman(G))
+    gn_communities = nx.algorithms.community.asyn_fluidc(G, k=10)
 
     nodes = np.array(G.nodes())
     colors = list(np.zeros(len(nodes)))
@@ -91,7 +93,7 @@ def community_analysis(G, output):
 
     fig = plt.figure(figsize=(20, 20))
     nx.draw_kamada_kawai(G, node_color=colors)
-    plt.savefig(os.path.join(output, 'gn_community.png'))
+    plt.savefig(os.path.join(output, 'asyn_fluid_community.png'))
 
 
 def simulate_spread(G, steps, threshold, infected_probability, simulation_beta, simulation_gamma, simulation_alpha,
