@@ -16,13 +16,13 @@ if __name__ == '__main__':
     parser.add_argument("--draw-graph", action='store_true')
     parser.add_argument("--community-analysis", action='store_true')
     parser.add_argument("--simulation-steps", type=int, help="Steps for the virus spread simulation.",
-                        default=200)
+                        default=80)
     parser.add_argument("--simulation-infected-probability", type=float,
                         help="Percentage of nodes to take from exposed to infected.", default=0.4)
     parser.add_argument("--simulation-beta", type=float, help="Simulation beta parameter.", default=0.2)
     parser.add_argument("--simulation-gamma", type=float, help="Simulation gamma parameter.", default=0.05)
     parser.add_argument("--simulation-alpha", type=float, help="Simulation alpha parameter.", default=0.3)
-    parser.add_argument("--flaws_threshold", type=int, help="Threshold to be used in order to select Exposed nodes.",
+    parser.add_argument("--flaws-threshold", type=int, help="Threshold to be used in order to select Exposed nodes.",
                         default=1)
     args = parser.parse_args()
 
