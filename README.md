@@ -27,5 +27,5 @@ or to missuse the Have I Been Pwned website as it can be seen as a DDoS attack.
 
 Use at your own risk.
 
-## About code
+## About the code
 The code is distributed "as is" without any guarantee.
