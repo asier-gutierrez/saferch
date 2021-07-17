@@ -10,7 +10,7 @@ performs everything on a single run using main.py.
 See our preprint for more information:
 https://arxiv.org/abs/2012.11699
 ```
-@misc{gutiérrezfandiño2020vulnerability,
+@misc{gutierrezfandino2020vulnerability,
       title={A Vulnerability Study on Academic Collaboration Networks Based on Network Dynamics}, 
       author={Asier Gutiérrez-Fandiño and Jordi Armengol-Estapé and Marta Villegas},
       year={2020},
